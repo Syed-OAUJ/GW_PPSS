@@ -34,7 +34,7 @@ Use this option if you prefer working offline, want faster iteration without Col
 
 ### Prerequisites
 
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/download) installed on your computer. If you don't have either yet, Miniconda is the smaller, faster install and is all you need here.
+- [Miniconda](https://docs.conda.io/en/latest/miniconda.html) installed on your computer. If you don't have either yet, Miniconda is the smaller, faster install and is all you need here.
 - `git` installed (to clone the repository). Alternatively, you can just download the repo as a ZIP from GitHub and skip the `git clone` step below.
 
 ### Step-by-step setup
@@ -42,7 +42,7 @@ Use this option if you prefer working offline, want faster iteration without Col
 **1. Clone this repository** (or download it as a ZIP and extract it):
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME.git
+git clone https://github.com/Syed-OAUJ/GW_PPSS.git
 cd YOUR_REPO_NAME
 ```
 
