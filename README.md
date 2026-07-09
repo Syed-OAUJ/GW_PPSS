@@ -10,9 +10,8 @@ There are two ways to run this notebook — pick whichever is easier for you. **
 
 Click the badge below to open the notebook directly in your browser:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/blob/main/Tutorial_GW.ipynb)
+[![Open In Colab](https://colab.research.google.com/drive/1y70ilcognmMVsm8sm5GN3ZsR7rEq-S6e?usp=sharing)
 
-*(Replace `YOUR_GITHUB_USERNAME/YOUR_REPO_NAME` above, and in the badge link, with your actual GitHub path — or just use this direct link once you have it: **[INSERT YOUR COLAB LINK HERE]**)*
 
 ### First-time setup in Colab
 
