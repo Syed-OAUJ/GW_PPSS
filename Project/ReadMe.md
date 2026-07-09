@@ -2,9 +2,6 @@
 
 **From Boson Stars to Einstein Telescope**
 
-**Tutor:** Dr. Syed Naqvi (IFJ PAN) — [syed.naqvi@ifj.edu.pl](mailto:syed.naqvi@ifj.edu.pl)
-
-*This is the 3-4 week follow-on project for students continuing on in gravitational-wave physics after the [general Workshop](./Home). Week 1 (lectures) is shared with the full cohort; Weeks 2-4 are for the selected GW students only.*
 
 ---
 
