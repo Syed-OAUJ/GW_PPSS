@@ -8,10 +8,9 @@ There are two ways to run this notebook — pick whichever is easier for you. **
 
 ## Option 1: Google Colab (recommended — nothing to install)
 
-Click the badge below to open the notebook directly in your browser:
+Click below to open the notebook directly in your browser:
 
-[Open In Colab, ](https://colab.research.google.com/drive/1y70ilcognmMVsm8sm5GN3ZsR7rEq-S6e?usp=sharing)
-
+[Open In Colab](https://colab.research.google.com/drive/1y70ilcognmMVsm8sm5GN3ZsR7rEq-S6e?usp=sharing)
 
 ### First-time setup in Colab
 
@@ -34,8 +33,27 @@ Use this option if you prefer working offline, want faster iteration without Col
 
 ### Prerequisites
 
-- [Miniconda](https://docs.conda.io/en/latest/miniconda.html) installed on your computer. If you don't have either yet, Miniconda is the smaller, faster install and is all you need here.
+- **conda** (via Miniconda or Anaconda) — see "Don't have conda yet?" below if you need to install it.
 - `git` installed (to clone the repository). Alternatively, you can just download the repo as a ZIP from GitHub and skip the `git clone` step below.
+
+### Don't have conda yet?
+
+Conda is a tool that manages Python installations and packages in isolated environments, so different projects can use different library versions without conflicting. **Miniconda** is a minimal installer for it (a few hundred MB) — you don't need the full Anaconda distribution (several GB, includes many packages you won't use here).
+
+1. Go to the [Miniconda download page](https://docs.conda.io/en/latest/miniconda.html) and download the installer for your operating system (Windows, macOS, or Linux).
+2. Run the installer:
+   - **Windows:** double-click the downloaded `.exe` and follow the prompts (defaults are fine).
+   - **macOS/Linux:** open a terminal in your Downloads folder and run `bash Miniconda3-latest-<your-OS>.sh`, then follow the prompts.
+3. **Close and reopen your terminal** (or Anaconda Prompt on Windows) so it picks up the new `conda` command.
+4. Verify it worked:
+
+   ```bash
+   conda --version
+   ```
+
+   You should see something like `conda 24.x.x`. If you instead see "command not found," the most common fix is closing and fully reopening your terminal — conda modifies your shell's startup configuration, and that only takes effect in new terminal windows.
+
+Once `conda --version` works, continue with the steps below.
 
 ### Step-by-step setup
 
@@ -43,7 +61,7 @@ Use this option if you prefer working offline, want faster iteration without Col
 
 ```bash
 git clone https://github.com/Syed-OAUJ/GW_PPSS.git
-cd YOUR_REPO_NAME
+cd GW_PPSS
 ```
 
 **2. Create the conda environment** from the provided `environment.yml` file. This installs Python and every library the notebook needs — `numpy`, `scipy`, `matplotlib`, `jupyter`, `emcee`, and `corner` — all in one isolated environment that won't interfere with anything else on your computer:
