@@ -26,7 +26,7 @@ Two background papers to read alongside the lectures, in this order:
 
 ---
 
-## Week 1: Lectures —
+## Week 1: Lectures 
 
 ### Lecture 1: Gravitational Wave Basics & Compact Binaries
 * The quadrupole formula: $h_{ij} = \frac{2G}{c^4 D} \ddot{I}_{ij}$.
