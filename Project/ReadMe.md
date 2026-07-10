@@ -2,7 +2,6 @@
 
 **From Boson Stars to Einstein Telescope**
 
-
 ---
 
 ## Project Overview
@@ -14,6 +13,16 @@ This project focuses on developing parameter estimation techniques to analyze th
 The project concludes by assessing the robustness of these tests for next-generation observatories like the Einstein Telescope (ET), which will feature a triangular configuration and significantly improved low-frequency sensitivity, allowing observation of more inspiral cycles and thus extraction of multipole moments with much greater precision.
 
 *This project directly builds on published research: [arXiv:2511.17341](https://arxiv.org/abs/2511.17341), "Implications of GW241011 for rotating exotic compact objects."*
+
+---
+
+## Papers (`/Papers` folder)
+
+Two background papers to read alongside the lectures, in this order:
+
+1. **[arXiv:1602.03840](https://arxiv.org/pdf/1602.03840)** — "Observation of Gravitational Waves from a Binary Black Hole Merger" (Abbott et al. 2016). The GW150914 discovery paper. Read this first, to see what a real detection actually looks like end to end — the signal, the detectors, the parameter estimates — before touching any of the machinery that produces those estimates.
+
+2. **[arXiv:gr-qc/0411146](https://arxiv.org/abs/gr-qc/0411146)** — Arun, Iyer, Sathyaprakash & Sundararajan, "Parameter estimation of inspiralling compact binaries using 3.5PN gravitational wave phasing: the non-spinning case." *(To be added to the repo.)* This is a Fisher-matrix forecasting paper — Table 1 reports predicted parameter uncertainties ($\Delta\mathcal{M}$, $\Delta\eta$, etc.) at various post-Newtonian orders for representative binaries. **Once you have working Fisher-matrix code (Week 3), try to reproduce a row of Table 1 for one of their example systems as a validation check** — if your code roughly matches a published, peer-reviewed result, that's strong evidence it's actually correct, not just "runs without crashing."
 
 ---
 
@@ -50,7 +59,7 @@ The project concludes by assessing the robustness of these tests for next-genera
 * Forecast for $\kappa_1$: expected $\sigma_{\kappa_1} \approx 0.1$ at SNR=100.
 
 ### Daily Practicals (1-2h each)
-* **Monday:** Python crash course (numpy, matplotlib). *Covered by the general [Workshop](./Home) / Parts I-III of the Colab notebook.*
+* **Monday:** Python crash course (numpy, matplotlib). *Covered by the general Workshop / Parts I-III of the Colab notebook.*
 * **Tuesday:** Reading public GW data (GWOSC) and plotting strain.
 * **Wednesday:** Simple frequency-domain inspiral waveform generator. *Covered by Part I of the Colab notebook — can be reused directly.*
 * **Thursday:** Introduction to `bilby` (parameter estimation).
@@ -60,23 +69,63 @@ The project concludes by assessing the robustness of these tests for next-genera
 
 ---
 
-## Week 2: Waveform Simulation & Injection
+## Weeks 2-4: Two Parallel Tracks
 
-Students implement a restricted PN waveform with $\kappa_1$ dependence, inject signals into simulated ET noise, and compare Kerr vs. ECO waveforms.
+Every week runs two tracks side by side, both answering the same physics question:
 
-> **Note:** there's a real modeling gap between the general workshop's toy waveform (non-spinning, no $\kappa$ term) and this week's task. Consider a short bridging exercise first — extending the toy notebook's phase formula with a placeholder $\kappa$-dependent term — before moving to the full 2PN/3PN implementation.
+- **Core track** (both students, together): a small, controlled extension of the general workshop's toy machinery. Low risk, guaranteed to produce a clean, presentable result by Week 4.
+- **Stretch track** (the more interested student, as a parallel branch): the same question using real infrastructure (`pycbc` + `TaylorF2`/`dQuadMon`, real detector PSDs). This is what starts becoming genuinely pipeline-shaped, toward a future paper.
 
-## Week 3: Fisher Matrix Analysis
+Noise is handled with real detector data throughout — aLIGO, ET, and CE PSD text files (already available) rather than the flat-noise simplification used in the general workshop.
 
-Compute the Fisher matrix for parameters $\{\ln\mathcal{A}, \ln M_c, \eta, \chi_1, \chi_2, \kappa_1, t_c, \phi_c\}$; obtain $\sigma_{\kappa_1}$ as a function of SNR.
+### Week 2: Waveform Simulation & Injection
 
-> **Note:** the `fisher_matrix()` function from the general workshop notebook generalizes cleanly to N parameters (it already loops over `ndim`), so the method transfers directly — but re-run the condition-number sanity check from that notebook on the full 8x8 matrix before trusting the result; finite-difference Fisher matrices get numerically fragile fast in higher dimensions.
+**Teach:** the $\kappa$-dependent 2PN SIQM phase term (aligned-spin, fix $\kappa_2=1$); how to go from flat-noise to a real noise-weighted likelihood by loading a PSD file and replacing $1/\sigma^2$ with $1/S_n(f)$.
 
-## Week 4: Bayesian Recovery with `bilby`
+**Core track:**
+- Extend the toy `waveform()` with a single $\kappa_1$ phase term.
+- Load the aLIGO PSD file, interpolate **in log-log space** (PSDs span many orders of magnitude — linear interpolation distorts them) onto the toy model's frequency grid.
+- Compute a real matched-filter SNR using the actual noise-weighted inner product from Lecture 1.
+- **Deliverable:** dephasing/mismatch vs. $\kappa_1$ plot, with a real (PSD-weighted) SNR attached.
 
-Run full nested sampling on simulated ET data, produce corner plots, and write a short report. Discuss which ECO models (repulsive, solitonic, axionic) can be distinguished from black holes.
+**Stretch track:**
+- Same physics via `pycbc.waveform.get_fd_waveform(approximant='TaylorF2', dquad_mon1=kappa1-1, ...)`.
+- Load the same PSD file with `pycbc.psd.read.from_txt(...)`.
+- **Deliverable:** same dephasing/mismatch plot, real waveform. Compare directly against the core track's plot — same qualitative trend, different fidelity; a natural way to satisfy the programme's "students cooperate" expectation.
 
-> **Note:** full `dynesty` nested sampling on an 8-parameter waveform can take many hours. Submit these jobs well before this week's session starts, and consider high-SNR zero-noise injections plus a reduced live-point count to keep runtimes manageable within the week.
+### Week 3: Fisher Matrix Analysis
+
+**Teach:** swapping $1/\sigma^2 \to 1/S_n(f)$ inside `fisher_matrix()` is a one-line change from the workshop's version; comparing across detectors (aLIGO vs. ET vs. CE) is the natural next question once all three PSDs are loaded — this is your paper's own motivation, scaled to project size.
+
+**Core track:**
+- 4-parameter Fisher matrix $\{\ln M_c, \kappa_1, t_c, \phi_c\}$, PSD-weighted, computed separately for aLIGO, ET, and CE.
+- **Deliverable:** $\sigma_{\kappa_1}$ vs. SNR (or vs. detector), one line per detector — a clean, guaranteed plot showing the ET/CE improvement quantitatively.
+- **Validation check:** try to reproduce a row of Table 1 from arXiv:gr-qc/0411146 with your own code (see Papers section above).
+
+**Stretch track:**
+- Full 8-parameter Fisher matrix on the `pycbc`/`TaylorF2` waveform, same three detectors.
+- Expect real numerical fragility — re-run the condition-number check from the workshop before trusting any 8x8 result; budget a session for exactly this kind of debugging.
+
+### Week 4: Bayesian Recovery
+
+**Teach:** reading a $\kappa_1$ posterior against $\kappa=1$ (Kerr) — does it exclude Kerr at some credible level, and does that change across detectors?
+
+**Core track:**
+- `emcee` on the same 4-parameter, PSD-weighted model — one run per detector if time allows (aLIGO vs. ET is the more dramatic contrast; CE optional if time is short).
+- **Deliverable (guaranteed centerpiece):** corner plot(s) showing the $\kappa_1$ posterior tightening from aLIGO to ET.
+
+**Stretch track:**
+- `bilby` + `dynesty` on the full `pycbc` model, submitted **early in the week**, not during the final session — full nested sampling on an 8-parameter waveform can take many hours. If only one detector's run finishes in time, make it ET. Frame explicitly as pipeline groundwork for a future paper, not a finished result.
+
+---
+
+## Suggested Final Presentation
+
+1. Motivation (your paper — GW241011, the ECO question)
+2. Toy pipeline overview + dephasing plot (Week 2 core)
+3. **$\sigma_{\kappa_1}$ vs. detector (aLIGO / ET / CE)** (Week 3/4 core) — the guaranteed centerpiece, directly echoing your paper's own question about next-generation detector capability
+4. Bayesian recovery corner plot(s), aLIGO vs. ET (Week 4 core)
+5. *(If ready)* Stretch track snapshot: real waveform, real PSD, preliminary `bilby` status — framed as next steps toward publication
 
 ---
 
