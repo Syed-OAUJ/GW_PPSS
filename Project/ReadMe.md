@@ -74,7 +74,7 @@ Two background papers to read alongside the lectures, in this order:
 Every week runs two tracks side by side, both answering the same physics question:
 
 - **Core track** (both students, together): a small, controlled extension of the general workshop's toy machinery. Low risk, guaranteed to produce a clean, presentable result by Week 4.
-- **Stretch track** (the more interested student, as a parallel branch): the same question using real infrastructure (`pycbc` + `TaylorF2`/`dQuadMon`, real detector PSDs). This is what starts becoming genuinely pipeline-shaped, toward a future paper.
+- **Stretch track** (for future): the same question using real infrastructure (`pycbc` + `TaylorF2`/`dQuadMon`, real detector PSDs). This is what starts becoming genuinely pipeline-shaped (potentially aim for paper).
 
 Noise is handled with real detector data throughout — aLIGO, ET, and CE PSD text files (already available) rather than the flat-noise simplification used in the general workshop.
 
