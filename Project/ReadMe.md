@@ -26,7 +26,7 @@ Two background papers to read alongside the lectures, in this order:
 
 ---
 
-## Week 1: Lectures (July 6-10) — shared with full cohort
+## Week 1: Lectures —
 
 ### Lecture 1: Gravitational Wave Basics & Compact Binaries
 * The quadrupole formula: $h_{ij} = \frac{2G}{c^4 D} \ddot{I}_{ij}$.
@@ -57,16 +57,6 @@ Two background papers to read alongside the lectures, in this order:
 * Cramér–Rao bound: $\sigma_{\theta_i} \ge \sqrt{(\Gamma^{-1})_{ii}}$.
 * Einstein Telescope (ET): design sensitivity, $f_{\text{min}} = 1$ Hz, $f_{\text{max}} = 10^4$ Hz.
 * Forecast for $\kappa_1$: expected $\sigma_{\kappa_1} \approx 0.1$ at SNR=100.
-
-### Daily Practicals (1-2h each)
-* **Monday:** Python crash course (numpy, matplotlib). *Covered by the general Workshop / Parts I-III of the Colab notebook.*
-* **Tuesday:** Reading public GW data (GWOSC) and plotting strain.
-* **Wednesday:** Simple frequency-domain inspiral waveform generator. *Covered by Part I of the Colab notebook — can be reused directly.*
-* **Thursday:** Introduction to `bilby` (parameter estimation).
-* **Friday:** Coding a Fisher matrix from scratch. *Covered by Part VI of the Colab notebook — can be reused directly.*
-
-> **Note:** Tuesday and Thursday need dedicated material not covered by the general workshop notebook (GWOSC data access, and a `bilby` intro respectively) — flag if you'd like help building either.
-
 ---
 
 ## Weeks 2-4: Two Parallel Tracks
@@ -121,9 +111,9 @@ Noise is handled with real detector data throughout — aLIGO, ET, and CE PSD te
 
 ## Suggested Final Presentation
 
-1. Motivation (your paper — GW241011, the ECO question)
+1. Motivation (paper — GW241011, the ECO question)
 2. Toy pipeline overview + dephasing plot (Week 2 core)
-3. **$\sigma_{\kappa_1}$ vs. detector (aLIGO / ET / CE)** (Week 3/4 core) — the guaranteed centerpiece, directly echoing your paper's own question about next-generation detector capability
+3. **$\sigma_{\kappa_1}$ vs. detector (aLIGO / ET / CE)** (Week 3/4 core) 
 4. Bayesian recovery corner plot(s), aLIGO vs. ET (Week 4 core)
 5. *(If ready)* Stretch track snapshot: real waveform, real PSD, preliminary `bilby` status — framed as next steps toward publication
 
