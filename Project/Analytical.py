@@ -38,12 +38,17 @@ Notes on the translation
   translation is faithful. The complete-through-3.5PN phasing is the one
   built in section 3 (`AISSKappa` / `hAISSKappa`).
 """
-
+import sympy
 import sympy as sp
 from sympy import (
     symbols, Rational, sqrt, log, pi, exp, I, conjugate, simplify,
     lambdify, N, EulerGamma
 )
+import matplotlib.pyplot as plt
+import numpy as np
+from pycbc.catalog import Merger
+from pycbc.filter import highpass_fir, lowpass_fir
+from pycbc.psd import welch, interpolate
 
 # ---------------------------------------------------------------------
 # Section 1: "3.5 PN Non - Spinning Waveform"
@@ -292,3 +297,34 @@ if __name__ == "__main__":
 
     hval = hAISSKappa(f, mchirp, eta, tc, phic, chi1, chi2, kappas, kappaa)
     print("hAISSKappa(50 Hz) =", N(hval.subs(vals)))
+
+    print("#-------------")
+    print(" My code starts here")
+
+    # Build the symbolic expression once, then compile it to a fast numpy function
+    f_sym = symbols('f', positive=True)
+    PSDET_expr = PSDET(f_sym)
+    PSDET_numpy = lambdify(f_sym, PSDET_expr, 'numpy')
+
+    PSDAjith_expr = PSDAjith(f_sym)
+    PSDAjith_numpy = lambdify(f_sym, PSDAjith_expr, 'numpy')
+
+    # Frequency range: log-spaced is more sensible than linear for a loglog plot
+    freqs = np.logspace(0, 4, 2000)  # 1 Hz to 10,000 Hz
+    psd_et_vals = PSDET_numpy(freqs)
+    psd_aijth_vals = PSDAjith_numpy(freqs)
+
+
+
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    ax.loglog(freqs, psd_et_vals, label="PSDET")
+    ax.loglog(freqs, psd_aijth_vals, label="PSDAjith")
+    ax.set_xlabel("Frequency f [Hz]")
+    ax.set_ylabel(r"PSD$(f)$")
+    ax.set_title("Analytical PSD")
+    ax.grid(True, which="both", ls="--", alpha=0.5)
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig("PSD_plot.png", dpi=150)
+    print("saved")
