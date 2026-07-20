@@ -49,6 +49,8 @@ import numpy as np
 from pycbc.catalog import Merger
 from pycbc.filter import highpass_fir, lowpass_fir
 from pycbc.psd import welch, interpolate
+from pycbc.waveform import get_td_waveform, get_fd_waveform, td_approximants, fd_approximants
+
 
 # ---------------------------------------------------------------------
 # Section 1: "3.5 PN Non - Spinning Waveform"
@@ -314,17 +316,45 @@ if __name__ == "__main__":
     psd_et_vals = PSDET_numpy(freqs)
     psd_aijth_vals = PSDAjith_numpy(freqs)
 
+    # synthetic waveform from pycbc
+    hp_synth, hc_synth = get_fd_waveform(
+    approximant="IMRPhenomD",
+    mass1=1000, mass2=26,       # GW150914-like masses (100+100 was solar-mass BHs, not really "SMBH")
+    delta_f=1.0 / 4,
+    f_lower=20,
+    f_final=1024,
+)
+    # For simplicity i assume hp_synth and hc_synth obey basic pitagorean theorem
+    h_net_synth = abs(hp_synth)**2 + abs(hc_synth)**2
+    freqs_synth = h_net_synth.sample_frequencies.numpy()
 
 
 
+    # --- measured GW150914 noise PSD (Welch estimate), one curve per IFO --
+    measured_psds = {}
+    for ifo in ['H1', 'L1']:
+        strain = Merger("GW150914").strain(ifo)
+        strain = highpass_fir(strain, 15, 8)
+        psd = interpolate(welch(strain), 1.0 / strain.duration)
+        measured_psds[ifo] = psd
+
+    # --- single combined figure --------------------------------------------
     fig, ax = plt.subplots(figsize=(7, 5))
-    ax.loglog(freqs, psd_et_vals, label="PSDET")
-    ax.loglog(freqs, psd_aijth_vals, label="PSDAjith")
+    ax.loglog(freqs, psd_et_vals, label="PSDET (analytical)")
+    ax.loglog(freqs, psd_aijth_vals, label="PSDAjith (analytical)")
+    ax.loglog(freqs_synth, h_net_synth, label="Synthetic Heavy BH")
+
+    for ifo, psd in measured_psds.items():
+        # restrict to the same frequency window for a fair comparison
+        mask = (psd.sample_frequencies.numpy() >= 1) & (psd.sample_frequencies.numpy() <= 1e4)
+        ax.loglog(psd.sample_frequencies.numpy()[mask], psd.numpy()[mask],
+                  label=f"{ifo} measured PSD (GW150914)", alpha=0.8)
+
     ax.set_xlabel("Frequency f [Hz]")
-    ax.set_ylabel(r"PSD$(f)$")
-    ax.set_title("Analytical PSD")
+    ax.set_ylabel(r"PSD$(f)$  [strain$^2$/Hz]")
+    ax.set_title("Analytical vs. measured detector PSDs (GW150914)")
     ax.grid(True, which="both", ls="--", alpha=0.5)
     ax.legend()
     fig.tight_layout()
     fig.savefig("PSD_plot.png", dpi=150)
-    print("saved")
+    print("saved PSD_plot.png")
