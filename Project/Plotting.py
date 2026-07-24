@@ -1,7 +1,7 @@
 import sympy as sp
 import matplotlib.pyplot as plt
 import numpy as np
-#from scipy.integrate import trapezoid
+from scipy.integrate import trapezoid
 import pandas as pd
 
 
@@ -11,6 +11,7 @@ df = pd.read_csv(
     header=None,      # no header row in the file
     names=["freq", "psd"]
 )
+# print(df.head())
 
 # ---------------------------------------------------------------
 # Symbols
@@ -65,26 +66,53 @@ freqs_old = np.logspace(np.log10(10), np.log10(2000), 500)  # fs = 10 Hz
 #sqrtSh_new = np.sqrt(Sh_new_func(freqs_new))
 #sqrtSh_old = np.sqrt(Sh_old_func(freqs_old))
 
-# ---------------------------------------------------------------
-# Plot: amplitude spectral density sqrt(Sh(f))  [Hz^-1/2]
-# ---------------------------------------------------------------
-plt.figure(figsize=(7, 6))
-plt.loglog(freqs_new, Sh_new_func(freqs_new), 'k-', lw=2, label=r'Adv. LIGO (Eq. 3.7, $f_0=215$ Hz)')
-plt.loglog(freqs_old, Sh_old_func(freqs_old), 'b--', lw=2, label=r'Adv. LIGO (older fit, $f_0=70$ Hz)')
-plt.loglog(df['freq'], df['psd'], label='Data')
 
-plt.xlabel('Frequency (Hz)')
-plt.ylabel(r'$S_h(f)$  (Hz)')
-plt.title('Comparison of Advanced LIGO noise PSD fits')
-plt.legend()
-plt.grid(True, which='both', ls=':', alpha=0.6)
-plt.xlim(10, 2000)
-plt.tight_layout()
-plt.savefig('aligo_psd_comparison.png', dpi=150)
-print("Saved plot.")
+# --------------
+# Signal to noice ratio
+# --------------
+# For now I assume amplitude: A=1
+SNR_Aligo_density = pow(df['freq'], -7/3)/df['psd']
 
-# Also print the symbolic expressions for reference
-print("\nNew fit Sh(f):")
-sp.pprint(Sh_new_of_f)
-print("\nOlder fit Sh(f):")
-sp.pprint(Sh_old_of_f)
+SNR_Aligo = trapezoid(SNR_Aligo_density, df['freq'])
+print(f"Signal to nice ratio of ALigo: {SNR_Aligo}")
+
+if __name__ == "__main__":
+
+    # ---------------------------------------------------------------
+    # Plot: amplitude spectral density sqrt(Sh(f))  [Hz^-1/2]
+    # ---------------------------------------------------------------
+    plt.figure(figsize=(7, 6))
+    plt.loglog(freqs_new, Sh_new_func(freqs_new), 'k-', lw=2, label=r'Adv. LIGO (Eq. 3.7, $f_0=215$ Hz)')
+    plt.loglog(freqs_old, Sh_old_func(freqs_old), 'b--', lw=2, label=r'Adv. LIGO (older fit, $f_0=70$ Hz)')
+    plt.loglog(df['freq'], df['psd'], label='Data')
+
+
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel(r'$S_h(f)$  (Hz)')
+    plt.title('Comparison of Advanced LIGO noise PSD fits')
+    plt.legend()
+    plt.grid(True, which='both', ls=':', alpha=0.6)
+    plt.xlim(10, 2000)
+    plt.tight_layout()
+    plt.savefig('aligo_psd_comparison.png', dpi=150)
+    print("Saved plot.")
+
+
+
+    # Also print the symbolic expressions for reference
+    print("\nNew fit Sh(f):")
+    sp.pprint(Sh_new_of_f)
+    print("\nOlder fit Sh(f):")
+    sp.pprint(Sh_old_of_f)
+
+    plt.figure(figsize=(7, 6))
+    plt.loglog(df['freq'], SNR_Aligo_density, label='SNR Aligo density')
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel(r'SNR density  (Hz)')
+    plt.title('SNR Density Comparison')
+    plt.legend()
+    plt.grid(True, which='both', ls=':', alpha=0.6)
+    plt.xlim(10, 2000)
+    plt.tight_layout()
+    plt.savefig('SNR_density.png', dpi=150)
+    print("Saved plot.")

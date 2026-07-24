@@ -177,14 +177,26 @@ def v(f_, M_):
     return (pifac * M_ * f_) ** Rational(1, 3)
 
 
-def AISSKappa(f_, M_, eta_, chi1_, chi2_, kappas_, kappaa_):
+def AISSKappa(f_, M_, eta_, chi1_, chi2_, kappas_, kappaa_, max_order=7):
     """
     Direct translation of:
 
         AISSKappa[f_,M_,eta_,chi1_,chi2_,kappas_,kappaa_] := Module[...]
 
-    Returns the 3.5PN spin-aligned + quadrupole-monopole (kappa_s, kappa_a)
-    phasing psi(f), i.e. (alpha0 + Total[alphaList] - pifac/4).
+    Returns the spin-aligned + quadrupole-monopole (kappa_s, kappa_a)
+    phasing psi(f), i.e. (alpha0 + Total[alphaList] - pifac/4), truncated
+    at the requested PN order.
+
+    Parameters
+    ----------
+    max_order : int, optional (default 7)
+        Highest alpha_n term (n = PN order index, matching the notebook's
+        alpha0..alpha7 naming) to include in the sum. E.g. max_order=3
+        gives the leading + 1PN + 1.5PN terms (alpha0, alpha2, alpha3);
+        alpha1 is always 0 in this phasing so it never contributes.
+        max_order=7 (default) reproduces the full 3.5PN expression exactly
+        as before. Values above 7 are simply ignored (clamped), since no
+        higher-order alpha terms are defined here.
     """
     vval = v(f_, M_)
     f0 = 10
@@ -246,20 +258,25 @@ def AISSKappa(f_, M_, eta_, chi1_, chi2_, kappas_, kappaa_):
         - Rational(36868, 378) * eta_**2
     )
 
-    alphaList = [
-        0,
-        alpha2_ * vval**2,
-        alpha3_ * vval**3,
-        alpha4_ * vval**4,
-        alpha5_ * vval**5,
-        alpha6_ * vval**6,
-        alpha7_ * vval**7,
-    ]
+    # index-aligned with the notebook's alpha_n naming (n = 0..7)
+    alphaTerms = {
+        0: 0,                     # placeholder; alpha0_ handled separately below
+        1: 0,                     # alpha1 is identically 0 in this phasing
+        2: alpha2_ * vval**2,
+        3: alpha3_ * vval**3,
+        4: alpha4_ * vval**4,
+        5: alpha5_ * vval**5,
+        6: alpha6_ * vval**6,
+        7: alpha7_ * vval**7,
+    }
 
-    return alpha0_ + sum(alphaList) - pifac / 4
+    max_order = min(max_order, 7)  # clamp: no terms defined beyond alpha7
+    truncated_sum = sum(term for n, term in alphaTerms.items() if 2 <= n <= max_order)
+
+    return alpha0_ + truncated_sum - pifac / 4
 
 
-def hAISSKappa(f_, mchirp_, eta_, tc_, phic_, chi1_, chi2_, kappas_, kappaa_):
+def hAISSKappa(f_, mchirp_, eta_, tc_, phic_, chi1_, chi2_, kappas_, kappaa_, max_order=7):
     """
     Direct translation of:
 
@@ -268,7 +285,7 @@ def hAISSKappa(f_, mchirp_, eta_, tc_, phic_, chi1_, chi2_, kappas_, kappaa_):
     Full frequency-domain waveform f^(-7/6) * Exp[I*phase].
     """
     M_ = mchirp_ / eta_**Rational(3, 5)
-    psiAISSKappa = AISSKappa(f_, M_, eta_, chi1_, chi2_, kappas_, kappaa_)
+    psiAISSKappa = AISSKappa(f_, M_, eta_, chi1_, chi2_, kappas_, kappaa_, max_order)
     # (psiEXTRA / EccKappaPhasing2 term is commented out in the original
     #  notebook and therefore not included here either)
     phase = psiAISSKappa + 2 * pifac * f_ * tc_ - phic_
