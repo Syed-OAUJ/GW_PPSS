@@ -22,7 +22,7 @@ MSUN_SEC = 4.925491025543576e-6  # G*M_sun/c^3, seconds
 f_, t_c_, phi_c_, M_c_, eta_, kappa1_, kappa2_, chi1_, chi2_ = sp.symbols(
     "f t_c phi_c M_c eta kappa1 kappa2 chi1 chi2"
 )
-
+kappa_s_ = sp.symbols("kappa_s")
 
 ##############################################################################
 # KAPPA(CHI) DATA -- tamaraevst/Spin-induced-quadrupole-moments-of-boson-stars
@@ -122,28 +122,33 @@ def _eval_expr_on_freqs(expr, freqs):
 
 
 ##############################################################################
-# FISHER MATRIX  (theta = t_c, phi_c, M_c, eta, kappa1)
+# FISHER MATRIX  (theta = t_c, phi_c, M_c, eta, kappa_s)
 ##############################################################################
 
 def CreateFisherMatrice(
         t_c_val, phi_c_val, M_c_val, eta_val,
-        kappa1_val, kappa2_val,
+        kappa_s_val, kappa_a_val,
         chi1_val, chi2_val,
         max_order=7,
         fs=20.0, f_upper_cap=None, n_freqs=500,
         should_print_result=False
 ):
-    theta = [t_c_, phi_c_, M_c_, eta_, kappa1_]
+    if abs(eta_val - 0.25) < 1e-6 and chi1_val != chi2_val:
+        raise ValueError(
+            "eta_val is (numerically) exactly 0.25 while chi1_val != chi2_val -- "
+            "d(delta)/d(eta) diverges there. Use slightly unequal masses."
+        )
+
+    theta = [t_c_, phi_c_, M_c_, eta_, kappa_s_]
 
     M_total_ = M_c_ / eta_ ** sp.Rational(3, 5)
 
-    kappa_s_expr = (kappa1_ + kappa2_) / 2
-    kappa_a_expr = (kappa1_ - kappa2_) / 2
-
+    # kappa_a_val is a plain float, passed straight into AISSKappa -- it never
+    # becomes a symbol, so there's nothing to differentiate or substitute for it.
     psi = AISSKappa(
         f_, M_total_, eta_,
         chi1_, chi2_,
-        kappa_s_expr, kappa_a_expr,
+        kappa_s_, kappa_a_val,
         max_order
     )
     full_phase = psi + 2 * sp.pi * f_ * t_c_ - phi_c_
@@ -166,14 +171,13 @@ def CreateFisherMatrice(
         t_c_: t_c_val, phi_c_: phi_c_val,
         M_c_: M_c_val, eta_: eta_val,
         chi1_: chi1_val, chi2_: chi2_val,
-        kappa1_: kappa1_val, kappa2_: kappa2_val,
+        kappa_s_: kappa_s_val,
     }
     fisher = fisher.subs(fiducial)
 
     M_val = M_c_val / eta_val ** 0.6
     freqs = make_freq_grid(M_val, fs=fs, f_upper_cap=f_upper_cap, n=n_freqs)
 
-    # --- element-wise lambdify (fixes the ragged-array crash) ---
     n = len(theta)
     fisher_vals = np.empty((n, n, len(freqs)), dtype=np.complex128)
     for i in range(n):
@@ -186,8 +190,7 @@ def CreateFisherMatrice(
     amplitude = calc_amplitude(Sh_new_func, freqs)
     fisher_total = amplitude ** 2 * fisher_total_unit
 
-    # --- handle kappa1 carrying zero information below 2PN ---
-    kappa_idx = theta.index(kappa1_)
+    kappa_idx = theta.index(kappa_s_)
     kappa_uninformative = np.allclose(fisher_total[kappa_idx, :], 0.0)
 
     if kappa_uninformative:
@@ -206,14 +209,14 @@ def CreateFisherMatrice(
         if not kappa_uninformative:
             print("\nCheck Gamma @ Sigma = I\n", np.round(fisher_total @ covariance, 5))
         else:
-            print("\nNote: kappa1 has zero Fisher information at this PN order "
-                  "(first enters at 2PN via alpha4) -> Delta kappa1 = NaN")
+            print("\nNote: kappa_s has zero Fisher information at this PN order "
+                  "(first enters at 2PN via alpha4) -> Delta kappa_s = NaN")
 
     return covariance
 
 
 ##############################################################################
-# TABLE  (now with an extra Delta kappa1 column)
+# TABLE
 ##############################################################################
 
 _PN_LABELS = {2: "1PN", 3: "1.5PN", 4: "2PN", 5: "2.5PN", 6: "3PN", 7: "3.5PN"}
@@ -222,7 +225,7 @@ _PN_LABELS = {2: "1PN", 3: "1.5PN", 4: "2PN", 5: "2.5PN", 6: "3PN", 7: "3.5PN"}
 def TableIRecreate(
         t_c_val, phi_c_val, M_c_val, eta_val,
         chi1_val, chi2_val,
-        kappa1_val, kappa2_val,
+        kappa_s_val, kappa_a_val,
         fs=20.0, f_upper_cap=None,
         should_print_result=True
 ):
@@ -231,17 +234,15 @@ def TableIRecreate(
         covariance = CreateFisherMatrice(
             t_c_val=t_c_val, phi_c_val=phi_c_val,
             M_c_val=M_c_val, eta_val=eta_val,
-            kappa1_val=kappa1_val, kappa2_val=kappa2_val,
+            kappa_s_val=kappa_s_val, kappa_a_val=kappa_a_val,
             chi1_val=chi1_val, chi2_val=chi2_val,
             max_order=order, fs=fs, f_upper_cap=f_upper_cap,
         )
         sigma = np.sqrt(np.diag(covariance))
         rows.append([
-            sigma[0] * 1000,
-            sigma[1],
-            100 * sigma[2] / M_c_val,
-            100 * sigma[3] / eta_val,
-            sigma[4],                     # Delta kappa1, absolute
+            sigma[0] * 1000, sigma[1],
+            100 * sigma[2] / M_c_val, 100 * sigma[3] / eta_val,
+            sigma[4],
         ])
         labels.append(_PN_LABELS[order])
 
@@ -249,12 +250,11 @@ def TableIRecreate(
         rows, index=labels,
         columns=[r"$\Delta t_c$ (ms)", r"$\Delta\phi_c$",
                  r"$\Delta M_c/M_c$ (%)", r"$\Delta\eta/\eta$ (%)",
-                 r"$\Delta\kappa_1$"]
+                 r"$\Delta\kappa_s$"]
     )
     if should_print_result:
         print(df.round(4))
     return df
-
 
 def load_mass_kappa_table(path=KAPPA_DATA_PATH):
     return pd.read_csv(
@@ -298,26 +298,28 @@ def plot_kappa_mass(m1, kappa1, m2, kappa2, table=None,
     plt.close()
     return outpath
 
-
 ##############################################################################
 # RUN
 ##############################################################################
 
 if __name__ == "__main__":
-    vals = mass_kappa_from_rows()  # row 0 -> body 1, row 1 -> body 2
+    vals = mass_kappa_from_rows()
     m1, kappa1_val = vals["mass1"], vals["kappa1"]
     m2, kappa2_val = vals["mass2"], vals["kappa2"]
-    chi1_val, chi2_val = 0.9, 0.8  # fixed constants, unrelated to the data rows
-    #m1, m2 = 10, 10
+    chi1_val, chi2_val = 0.9, 0.8
+
+    # derive the new parametrization from the same two rows
+    kappa_s_val = (kappa1_val + kappa2_val) / 2
+    kappa_a_val = (kappa1_val - kappa2_val) / 2
+
     M = (m1 + m2) * MSUN_SEC
     eta = m1 * m2 / (m1 + m2) ** 2
-    #eta = 0.25
     Mc = eta ** 0.6 * M
 
     print(f"row1 -> m1={m1:.4f}, kappa1={kappa1_val:.4f}")
     print(f"row2 -> m2={m2:.4f}, kappa2={kappa2_val:.4f}")
-    print(f"eta = {eta:.8f}   (1 - 4*eta = {1 - 4*eta:.6e}) "
-          f"-- close to 0.25 since m1~m2 here, expect large-but-finite eta-sensitivity")
+    print(f"kappa_s = {kappa_s_val:.4f}, kappa_a = {kappa_a_val:.4f}")
+    print(f"eta = {eta:.8f}")
 
     plot_kappa_mass(m1, kappa1_val, m2, kappa2_val)
     print("saved kappa_vs_mass.png")
@@ -326,14 +328,8 @@ if __name__ == "__main__":
         t_c_val=0.0, phi_c_val=0.0,
         M_c_val=Mc, eta_val=eta,
         chi1_val=chi1_val, chi2_val=chi2_val,
-        kappa1_val=kappa1_val, kappa2_val=kappa2_val,
+        kappa_s_val=kappa_s_val, kappa_a_val=kappa_a_val,
     )
-    """
-    df = TableIRecreate(
-        t_c_val=0.0, phi_c_val=0.0,
-        M_c_val=Mc, eta_val=eta,
-        chi1_val=0, chi2_val=0,
-        kappa1_val=1, kappa2_val=1,
-    )
-    """
+
     df.to_csv("TableRecreated.csv", index=False, float_format="%.4g")
+

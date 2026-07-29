@@ -18,44 +18,42 @@ from FisherKappaPlay import (
 ##############################################################################
 
 chi1_val, chi2_val = 0.9, 0.8
-kappa2_val = 1.0
 
-vals = mass_kappa_from_rows()          # row0 -> body1, row1 -> body2 (same as Fisher script)
+vals = mass_kappa_from_rows()
 m1, kappa1_val = vals["mass1"], vals["kappa1"]
-m2 = vals["mass2"]
+m2, kappa2_val = vals["mass2"], vals["kappa2"]
+
+kappa_s_val = (kappa1_val + kappa2_val) / 2
+kappa_a_val = (kappa1_val - kappa2_val) / 2   # fixed, not sampled
 
 M_val = (m1 + m2) * MSUN_SEC
 eta_val = m1 * m2 / (m1 + m2) ** 2
 Mc_val = eta_val ** 0.6 * M_val
 t_c_val, phi_c_val = 0.0, 0.0
 
-theta_true = np.array([t_c_val, phi_c_val, Mc_val, eta_val, kappa1_val])
-PARAM_LABELS = [r"$t_c$", r"$\phi_c$", r"$M_c$", r"$\eta$", r"$\kappa_1$"]
+theta_true = np.array([t_c_val, phi_c_val, Mc_val, eta_val, kappa_s_val])
+PARAM_LABELS = [r"$t_c$", r"$\phi_c$", r"$M_c$", r"$\eta$", r"$\kappa_s$"]
 
 ##############################################################################
-# SYMBOLIC WAVEFORM -- identical construction to CreateFisherMatrice,
-# lambdified into a fast numeric function of (f, t_c, phi_c, M_c, eta, kappa1)
+# SYMBOLIC WAVEFORM
 ##############################################################################
 
-f_, t_c_, phi_c_, M_c_, eta_, kappa1_, kappa2_, chi1_, chi2_ = sp.symbols(
-    "f t_c phi_c M_c eta kappa1 kappa2 chi1 chi2"
+f_, t_c_, phi_c_, M_c_, eta_, kappa_s_, chi1_, chi2_ = sp.symbols(
+    "f t_c phi_c M_c eta kappa_s chi1 chi2"
 )
 
 M_total_ = M_c_ / eta_ ** sp.Rational(3, 5)
-kappa_s_expr = (kappa1_ + kappa2_) / 2
-kappa_a_expr = (kappa1_ - kappa2_) / 2
 
-psi_sym = AISSKappa(f_, M_total_, eta_, chi1_, chi2_, kappa_s_expr, kappa_a_expr, max_order=7)
+# kappa_a_val is baked in as a plain float -- no symbol, nothing to substitute later
+psi_sym = AISSKappa(f_, M_total_, eta_, chi1_, chi2_, kappa_s_, kappa_a_val, max_order=7)
 full_phase_sym = psi_sym + 2 * sp.pi * f_ * t_c_ - phi_c_
 h_sym = f_ ** sp.Rational(-7, 6) * sp.exp(sp.I * full_phase_sym)
 
-# chi1, chi2, kappa2 are fixed numbers, NOT sampled -- substitute them now
-h_sym_fixed = h_sym.subs({chi1_: chi1_val, chi2_: chi2_val, kappa2_: kappa2_val})
+h_sym_fixed = h_sym.subs({chi1_: chi1_val, chi2_: chi2_val})
 
 waveform_func = sp.lambdify(
-    (f_, t_c_, phi_c_, M_c_, eta_, kappa1_), h_sym_fixed, modules="numpy"
+    (f_, t_c_, phi_c_, M_c_, eta_, kappa_s_), h_sym_fixed, modules="numpy"
 )
-
 ##############################################################################
 # FREQUENCY GRID, PSD, AMPLITUDE (SNR=10 fiducial), "DATA"
 ##############################################################################
@@ -97,7 +95,7 @@ def log_likelihood(theta):
 
 
 def log_prior(theta):
-    t_c, phi_c, M_c, eta, kappa1 = theta
+    t_c, phi_c, M_c, eta, kappa_s = theta
     if not (-0.1 < t_c < 0.1):
         return -np.inf
     if not (-np.pi <= phi_c < np.pi):
@@ -106,7 +104,7 @@ def log_prior(theta):
         return -np.inf
     if not (0.05 < eta <= 0.25):
         return -np.inf
-    if not (0.0 < kappa1 < 10.0):
+    if not (0.0 < kappa_s < 10.0):
         return -np.inf
     return 0.0
 
@@ -138,7 +136,7 @@ ndim, nwalkers, nsteps = 5, 32, 3000
 covariance = CreateFisherMatrice(
     t_c_val=t_c_val, phi_c_val=phi_c_val,
     M_c_val=Mc_val, eta_val=eta_val,
-    kappa1_val=kappa1_val, kappa2_val=kappa2_val,
+    kappa_s_val=kappa_s_val, kappa_a_val=kappa_a_val,
     chi1_val=chi1_val, chi2_val=chi2_val,
     max_order=7,
 )
