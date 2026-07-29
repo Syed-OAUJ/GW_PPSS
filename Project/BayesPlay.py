@@ -119,53 +119,48 @@ def log_posterior(theta):
     return lp + ll
 
 
-##############################################################################
-# SANITY CHECK -- catch broken likelihoods before the expensive run
-##############################################################################
+if __name__ == "__main__":
 
-lp0 = log_posterior(theta_true)
-print("log_posterior at true value:", lp0, " -- should be finite (0.0 in the zero-noise case)")
-assert np.isfinite(lp0), "log_posterior is not finite at the true parameters -- fix before running MCMC"
+    ##############################################################################
+    # SANITY CHECK -- catch broken likelihoods before the expensive run
+    ##############################################################################
 
-##############################################################################
-# INITIAL WALKER SPREAD FROM THE REAL FISHER MATRIX
-##############################################################################
+    lp0 = log_posterior(theta_true)
+    print("log_posterior at true value:", lp0, " -- should be finite (0.0 in the zero-noise case)")
+    assert np.isfinite(lp0), "log_posterior is not finite at the true parameters -- fix before running MCMC"
 
-ndim, nwalkers, nsteps = 5, 32, 3000
+    ndim, nwalkers, nsteps = 5, 32, 3000
 
-covariance = CreateFisherMatrice(
-    t_c_val=t_c_val, phi_c_val=phi_c_val,
-    M_c_val=Mc_val, eta_val=eta_val,
-    kappa_s_val=kappa_s_val, kappa_a_val=kappa_a_val,
-    chi1_val=chi1_val, chi2_val=chi2_val,
-    max_order=7,
-)
+    covariance = CreateFisherMatrice(
+        t_c_val=t_c_val, phi_c_val=phi_c_val,
+        M_c_val=Mc_val, eta_val=eta_val,
+        kappa_s_val=kappa_s_val, kappa_a_val=kappa_a_val,
+        chi1_val=chi1_val, chi2_val=chi2_val,
+        max_order=7,
+    )
 
-if np.all(np.isfinite(covariance)) and np.all(np.diag(covariance) > 0):
-    scale = np.sqrt(np.diag(covariance))
-else:
-    print("WARNING: Fisher covariance has non-finite/non-positive diagonal entries "
-          "-- falling back to a rough manual scale")
-    scale = np.array([1e-4, 0.1, 0.05 * Mc_val, 0.02, 0.2])
+    if np.all(np.isfinite(covariance)) and np.all(np.diag(covariance) > 0):
+        scale = np.sqrt(np.diag(covariance))
+    else:
+        print("WARNING: Fisher covariance has non-finite/non-positive diagonal entries "
+              "-- falling back to a rough manual scale")
+        scale = np.array([1e-4, 0.1, 0.05 * Mc_val, 0.02, 0.2])
 
-rng = np.random.default_rng(7)
-pos = theta_true + 0.5 * scale * rng.standard_normal((nwalkers, ndim))
-pos[:, 3] = np.clip(pos[:, 3], 0.05 + 1e-6, 0.25 - 1e-6)   # keep eta walkers inside the prior
-pos[:, 4] = np.clip(pos[:, 4], 1e-6, 10.0 - 1e-6)          # keep kappa1 walkers inside the prior
+    rng = np.random.default_rng(7)
+    pos = theta_true + 0.5 * scale * rng.standard_normal((nwalkers, ndim))
+    pos[:, 3] = np.clip(pos[:, 3], 0.05 + 1e-6, 0.25 - 1e-6)
+    pos[:, 4] = np.clip(pos[:, 4], 1e-6, 10.0 - 1e-6)
 
-##############################################################################
-# RUN
-##############################################################################
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, log_posterior)
+    sampler.run_mcmc(pos, nsteps, progress=True)
+    print(f"Mean acceptance fraction: {np.mean(sampler.acceptance_fraction):.2f}")
 
-sampler = emcee.EnsembleSampler(nwalkers, ndim, log_posterior)
-sampler.run_mcmc(pos, nsteps, progress=True)
-print(f"Mean acceptance fraction: {np.mean(sampler.acceptance_fraction):.2f}")
+    flat_samples = sampler.get_chain(discard=500, thin=10, flat=True)
+    np.save("mcmc_samples.npy", flat_samples)   # <-- new: so CompareFisherBayes.py can reuse it
 
-flat_samples = sampler.get_chain(discard=500, thin=10, flat=True)
-
-fig = corner.corner(
-    flat_samples, labels=PARAM_LABELS, truths=list(theta_true),
-    quantiles=[0.16, 0.5, 0.84], show_titles=True
-)
-fig.savefig("kappa1_corner.png", dpi=150)
-plt.show()
+    fig = corner.corner(
+        flat_samples, labels=PARAM_LABELS, truths=list(theta_true),
+        quantiles=[0.16, 0.5, 0.84], show_titles=True
+    )
+    fig.savefig("kappa1_corner.png", dpi=150)
+    plt.show()
