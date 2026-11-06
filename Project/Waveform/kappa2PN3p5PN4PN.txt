@@ -1,0 +1,50 @@
+﻿v[f_, M_] := (\[Pi]fac*M*f)^(1/3);
+AISSKappa[f_, 
+      M_, \[Eta]_, \[Chi]1_, \[Chi]2_, \[Kappa]s_, \[Kappa]a_] := 
+    Module[{vval = 
+          v[f, M], \[Alpha]0, \[Alpha]2, \[Alpha]3, \[Alpha]4, \[Alpha]5, \
+\[Alpha]6, \[Alpha]7, \[Alpha]List, vlso, f0}, f0 = 10;
+      vlso = (\[Pi]*M*f0)^(1/3);
+      \[Alpha]0 = 3/(128*\[Eta]*vval^5);
+      \[Alpha]2 = \[Alpha]0*(20/9 (743/336 + 11/4 \[Eta]));
+      \[Alpha]3 = \[Alpha]0*(-16 \[Pi] + (113 \[Delta] \[Chi]adl)/
+                3 + (113/3 - (76 \[Eta])/3) \[Chi]sdl) /. {\[Delta] -> Sqrt[
+              1 - 4 \[Eta]], \[Chi]adl -> (\[Chi]1 - \[Chi]2)/
+              2, \[Chi]sdl -> (\[Chi]1 + \[Chi]2)/2};
+      \[Alpha]4 = \[Alpha]0*(15293365/508032 + (27145 \[Eta])/504 + (
+                3085 \[Eta]^2)/
+                72 + (-(5/8) + 100 \[Eta] - 25 \[Kappa]p + 
+                      50 \[Eta] \[Kappa]p) \[Chi]adl^2 + (-50 \[Kappa]m + 
+                      100 \[Eta] \[Kappa]m) \[Chi]adl \[Chi]sdl + (-(5/8) - (
+                      195 \[Eta])/2 - 25 \[Kappa]p + 
+                      50 \[Eta] \[Kappa]p) \[Chi]sdl^2 + \[Delta] (-25 \[Kappa]m \
+\[Chi]adl^2 + (-(5/4) - 50 \[Kappa]p) \[Chi]adl \[Chi]sdl - 
+                      25 \[Kappa]m \[Chi]sdl^2)) /. {\[Delta] -> Sqrt[
+              1 - 4 \[Eta]], \[Chi]adl -> (\[Chi]1 - \[Chi]2)/
+              2, \[Chi]sdl -> (\[Chi]1 + \[Chi]2)/2, \[Kappa]m -> 
+              2 \[Kappa]a, \[Kappa]p -> 2 \[Kappa]s};
+      \[Alpha]5 = \[Alpha]0*(\[Pi] (38645/756 + 
+                  38645/252 Log[vval/vlso] + 
+                  5/3 \[Eta] (1 + 3 Log[vval/vlso])));
+      \[Alpha]6 = \[Alpha]0*((11583231236531/4694215680 - (640 \[Pi]^2)/
+                  3 - (6848 \[Gamma]E)/
+                  21) + \[Eta] (-15335597827/3048192 + (2255 \[Pi]^2)/12 - (
+                    1760 \[Theta])/3 + (12320 \[Lambda])/9) + 
+              76055/1728 \[Eta]^2 - 127825/1296 \[Eta]^3 - 
+              6848/21 Log[4 vval]);
+      \[Alpha]7 = \[Alpha]0*(\[Pi] (77096675/254016 + 
+                  1014115/3024 \[Eta] - (36868 \[Eta]^2)/378));
+      \[Alpha]List = {0, \[Alpha]2*vval^2, \[Alpha]3*vval^3, \[Alpha]4*
+            vval^4, \[Alpha]5*vval^5, \[Alpha]6*vval^6, \[Alpha]7*vval^7};
+      (\[Alpha]0 + Total[\[Alpha]List] - \[Pi]fac/4)];
+hAISSKappa[f_, mchirp_, \[Eta]_, tc_, 
+      phic_, \[Chi]1_, \[Chi]2_, \[Kappa]s_, \[Kappa]a_] := 
+    Module[{M = mchirp/\[Eta]^(3/5), \[Psi]AISSKappa, phase, 
+        Amplitude},
+      
+      \[Psi]AISSKappa = 
+        AISSKappa[f, M, \[Eta], \[Chi]1, \[Chi]2, \[Kappa]s, \[Kappa]a];
+      (*\[Psi]EXTRA=EccKappaPhasing2[f,
+      M,\[Eta],\[Delta],\[Chi]sdl,\[Chi]adl,\[Kappa]s,0,e0,1];*)
+      phase = \[Psi]AISSKappa + 2 \[Pi]fac f tc - phic;
+      (f^(-7/6)*Exp[I*phase])];
