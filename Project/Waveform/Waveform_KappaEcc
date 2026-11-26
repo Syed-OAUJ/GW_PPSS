@@ -1,0 +1,123 @@
+M=N[NSolve[{m1+m2==30,m1/m2==1.2},{m1,m2}]]
+mass1=SP[m1/.M[[1]][[1]]];
+mass2=SP[m2/.M[[1]][[2]]];
+
+cutoffISCO=SP[1736.3161320203935025161524752839107001468241010527357563323926`32.];(*YOU NEED TO UPDATE IT EVERYTIME, make a generalized version*)
+ecc=0.00001
+Msolar2sec=SP[4.925491025543576*10^-6];
+(*Dparsec2sec=1.0292871676840455*10^-8;*)
+massValues={mns1->SP[(mass1)*Msolar2sec],mns2->SP[mass2*Msolar2sec],mbh1->SP[(mass1)*Msolar2sec],mbh2->SP[mass2*Msolar2sec]};
+chiValues={\[Chi]ns1->SP[0.9],\[Chi]ns2->SP[0.8],\[Chi]bh1->SP[0.9],\[Chi]bh2->SP[0.8]};
+Mns=SP[mns1+mns2/.massValues];
+Mbh=SP[mbh1+mbh2/.massValues];
+\[Mu]Values={\[Mu]NS->(mns1*mns2)/Mns,\[Mu]BH->(mbh1*mbh2)/Mbh}/.massValues;
+testmchirpNS=SP[\[Mu]NS^(3/5)*Mns^(2/5)/.\[Mu]Values]
+testmchirpBH=SP[\[Mu]BH^(3/5)*Mbh^(2/5)/.\[Mu]Values]
+cuttoffFns=N[1/(6^(3/2) \[Pi]*Mns)];
+cuttoffFbh=N[1/(6^(3/2) \[Pi]*Mbh)];
+
+S0=10^-49;
+"hehe"
+etaNSValue=SP[(mns1*mns2)/(Mns)^2/.massValues]
+mchirpNSValue=SP[etaNSValue^(3/5)*(mns1+mns2)/.massValues]
+etaBHValue=SP[(mbh1*mbh2)/(Mbh)^2/.massValues];
+mchirpBHValue=SP[etaBHValue^(3/5)*(mbh1+mbh2)/.massValues];
+\[Delta]NSValue=SP[Abs[mns1-mns2]/Mns/.massValues];
+\[Chi]sdlNSValue=(\[Chi]ns1+\[Chi]ns2)/2/.chiValues;
+\[Chi]adlNSValue=(\[Chi]ns1-\[Chi]ns2)/2/.chiValues;
+\[Delta]BHValue=Abs[mbh1-mbh2]/Mbh/.massValues;
+\[Chi]sdlBHValue=(\[Chi]bh1+\[Chi]bh2)/2/.chiValues;
+\[Chi]adlBHValue=(\[Chi]bh1-\[Chi]bh2)/2/.chiValues;
+(*Conversions*)
+conv={m->mchirp/\[Eta]^(3/5),\[Chi]adl->(\[Chi]1-\[Chi]2)/2,\[Chi]sdl->(\[Chi]1+\[Chi]2)/2,\[Kappa]m->2\[Kappa]a,\[Lambda]m->2\[Lambda]a,\[Lambda]p->2\[Lambda]s,\[Kappa]p->2\[Kappa]s,\[Delta]->Sqrt[1-4\[Eta]]};
+conv1={\[Kappa]a->0,\[Lambda]a->0,\[Lambda]s->1};
+(*m=mchirp/\[Eta]^(3/5);*)(*total mass -> chirp mass*)
+v=(\[Pi]*m*f)^(1/3);(*PN paramater*)
+v2=(\[Pi]*m*f)^(1/3);
+\[Gamma]E=N[EulerGamma];
+v0=(\[Pi]*m*f0Favata)^(1/3);
+(*\[Alpha]0=3/(256*v^5*\[Eta]);*)
+\[Pi]fac=N[Pi];
+\[CapitalGamma]E=N[EulerGamma];
+\[Gamma]E=N[EulerGamma];
+
+(*Non Spinning Terms*)
+(*------------------*)
+
+\[Lambda]=-0.6451;
+\[Theta]=-1.28;
+\[Gamma]E=N[EulerGamma];
+
+
+vlso=1;
+
+
+\[Alpha]0=3/(128*\[Eta]*v^5);
+\[Alpha]1=\[Alpha]0*0;
+\[Alpha]2=\[Alpha]0*(3715/756+(55 \[Eta])/9);
+\[Alpha]3=\[Alpha]0*(-16 \[Pi]+(113 \[Delta] \[Chi]adl)/3+(113/3-(76 \[Eta])/3) \[Chi]sdl);
+\[Alpha]4=\[Alpha]0*(15293365/508032+(27145 \[Eta])/504+(3085 \[Eta]^2)/72+(-(5/8)+100 \[Eta]-25 \[Kappa]p+50 \[Eta] \[Kappa]p) \[Chi]adl^2+(-50 \[Kappa]m+100 \[Eta] \[Kappa]m) \[Chi]adl \[Chi]sdl+(-(5/8)-(195 \[Eta])/2-25 \[Kappa]p+50 \[Eta] \[Kappa]p) \[Chi]sdl^2+\[Delta] (-25 \[Kappa]m \[Chi]adl^2+(-(5/4)-50 \[Kappa]p) \[Chi]adl \[Chi]sdl-25 \[Kappa]m \[Chi]sdl^2));
+(*\[Alpha]4NS=\[Alpha]0*10(3058673/1016064+5429/1008\[Eta]+617/144\[Eta]^2);*)
+\[Alpha]5=\[Alpha]0*((38645 \[Pi])/756-(65 \[Pi] \[Eta])/9+\[Delta] (-(732985/2268)-(140 \[Eta])/9) \[Chi]adl+(-(732985/2268)+(24260 \[Eta])/81+(340 \[Eta]^2)/9) \[Chi]sdl+((38645 \[Pi])/252-(65 \[Pi] \[Eta])/3+\[Delta] (-(732985/756)-(140 \[Eta])/3) \[Chi]adl+(-(732985/756)+(24260 \[Eta])/27+(340 \[Eta]^2)/3) \[Chi]sdl) Log[v]);
+\[Alpha]6=\[Alpha]0*(11583231236531/4694215680-(640 \[Pi]^2)/3-(6848 \[Gamma]E)/21-(15737765635 \[Eta])/3048192+(2255 \[Pi]^2 \[Eta])/12+(76055 \[Eta]^2)/1728-(127825 \[Eta]^3)/1296+(-(1344475/2016)+(267815 \[Eta])/252-240 \[Eta]^2+(26015 \[Kappa]p)/56-(44255 \[Eta] \[Kappa]p)/42-120 \[Eta]^2 \[Kappa]p) \[Chi]adl^2+((2270 \[Pi])/3-520 \[Pi] \[Eta]+((26015 \[Kappa]m)/28-(44255 \[Eta] \[Kappa]m)/21-240 \[Eta]^2 \[Kappa]m) \[Chi]adl) \[Chi]sdl+(-(1344475/2016)+(829705 \[Eta])/504+(3415 \[Eta]^2)/9+(26015 \[Kappa]p)/56-(44255 \[Eta] \[Kappa]p)/42-120 \[Eta]^2 \[Kappa]p) \[Chi]sdl^2+\[Delta] ((2270 \[Pi] \[Chi]adl)/3+((26015 \[Kappa]m)/56-(1495 \[Eta] \[Kappa]m)/12) \[Chi]adl^2+(-(1344475/1008)+(745 \[Eta])/18+(26015 \[Kappa]p)/28-(1495 \[Eta] \[Kappa]p)/6) \[Chi]adl \[Chi]sdl+((26015 \[Kappa]m)/56-(1495 \[Eta] \[Kappa]m)/12) \[Chi]sdl^2)-(6848 Log[4])/21-(6848 Log[v])/21);
+\[Alpha]7=\[Alpha]0*((77096675 \[Pi])/254016+(378515 \[Pi] \[Eta])/1512-(74045 \[Pi] \[Eta]^2)/756+((1555 \[Kappa]m)/3-(4235 \[Eta] \[Kappa]m)/3-220 \[Lambda]m+660 \[Eta] \[Lambda]m) \[Chi]adl^3+(-(25150083775/3048192)+(10566655595 \[Eta])/762048-(1042165 \[Eta]^2)/3024+(5345 \[Eta]^3)/36+(265/8-(6500 \[Eta])/3+40 \[Eta]^2+1555 \[Kappa]p-(13595 \[Eta] \[Kappa]p)/3+20 \[Eta]^2 \[Kappa]p-660 \[Lambda]p+1980 \[Eta] \[Lambda]p) \[Chi]adl^2) \[Chi]sdl+(1555 \[Kappa]m-(14485 \[Eta] \[Kappa]m)/3+40 \[Eta]^2 \[Kappa]m-660 \[Lambda]m+1980 \[Eta] \[Lambda]m) \[Chi]adl \[Chi]sdl^2+(265/24+(4035 \[Eta])/2-(20 \[Eta]^2)/3+(1555 \[Kappa]p)/3-(5125 \[Eta] \[Kappa]p)/3+20 \[Eta]^2 \[Kappa]p-220 \[Lambda]p+660 \[Eta] \[Lambda]p) \[Chi]sdl^3+\[Delta] ((-(25150083775/3048192)+(26804935 \[Eta])/6048-(1985 \[Eta]^2)/48) \[Chi]adl+(265/24-2070 \[Eta]+(1555 \[Kappa]p)/3-375 \[Eta] \[Kappa]p-220 \[Lambda]p+220 \[Eta] \[Lambda]p) \[Chi]adl^3+(1555 \[Kappa]m-(4265 \[Eta] \[Kappa]m)/3-660 \[Lambda]m+660 \[Eta] \[Lambda]m) \[Chi]adl^2 \[Chi]sdl+(265/8+(12055 \[Eta])/6+1555 \[Kappa]p-(5155 \[Eta] \[Kappa]p)/3-660 \[Lambda]p+660 \[Eta] \[Lambda]p) \[Chi]adl \[Chi]sdl^2+((1555 \[Kappa]m)/3-(2015 \[Eta] \[Kappa]m)/3-220 \[Lambda]m+220 \[Eta] \[Lambda]m) \[Chi]sdl^3));
+\[Alpha]8=\[Alpha]0*((233915 \[Pi] \[Delta] \[Chi]adl)/168-99185/252 \[Pi] \[Delta] \[Eta] \[Chi]adl+(233915 \[Pi] \[Chi]sdl)/168-(3970375 \[Pi] \[Eta] \[Chi]sdl)/2268+19655/189 \[Pi] \[Eta]^2 \[Chi]sdl-233915/56 \[Pi] \[Delta] \[Chi]adl Log[v]+99185/84 \[Pi] \[Delta] \[Eta] \[Chi]adl Log[v]-233915/56 \[Pi] \[Chi]sdl Log[v]+3970375/756 \[Pi] \[Eta] \[Chi]sdl Log[v]-19655/63 \[Pi] \[Eta]^2 \[Chi]sdl Log[v]);
+(*------------------*)
+
+
+
+(*Moore*)
+
+leadinge0=-1/(1462 (v)^(19/3))2355 e0^2 (v0)^(19/3); 
+leadinge1=leadinge0*0;
+
+leadinge2=leadinge0*(v0^2 (2833/1008-(197 \[Eta])/36)+v^2 (299076223/81976608+(18766963 \[Eta])/2927736));
+leadinge3=leadinge0*((377 \[Pi] v0^3)/72+v^3 (-((2819123 \[Pi])/282600)));
+leadinge4=leadinge0*(v0^4 (-(1193251/3048192)-(66317 \[Eta])/9072+(18155 \[Eta]^2)/1296)+v^4 (16237683263/3330429696+(24133060753 \[Eta])/971375328+(1562608261 \[Eta]^2)/69383952)+v^2 (v0^2 (847282939759/82632420864-(718901219 \[Eta])/368894736-(3697091711 \[Eta]^2)/105398496)));
+leadinge5=leadinge0*(v^5 (-((2831492681 \[Pi])/118395270)-(11552066831 \[Pi] \[Eta])/270617760)+v0^5 ((764881 \[Pi])/90720-(949457 \[Pi] \[Eta])/22680)+v^3 (v0^2 (-((7986575459 \[Pi])/284860800)+(555367231 \[Pi] \[Eta])/10173600)));
+leadinge6=leadinge0*(v^6 (-(43603153867072577087/132658535116800000)+(536803271 EulerGamma)/19782000+(15722503703 \[Pi]^2)/325555200+(299172861614477/689135247360-(15075413 \[Pi]^2)/1446912) \[Eta]+(3455209264991 \[Eta]^2)/41019955200+(50612671711 \[Eta]^3)/878999040+(3843505163 Log[2])/59346000-(1121397129 Log[3])/17584000+(536803271 (4 Log[2]+2 Log[v]))/39564000)+v0^6 (26531900578691/168991764480-(3317 EulerGamma)/126+(122833 \[Pi]^2)/10368+(9155185261/548674560-(3977 \[Pi]^2)/1152) \[Eta]-(5732473 \[Eta]^2)/1306368-(3090307 \[Eta]^3)/139968+(87419 Log[2])/1890-(26001 Log[3])/560-3317/252 (4 Log[2]+2 Log[v0]))+v^2 (v0^4 (-(356873002170973/249880440692736)-(260399751935005 \[Eta])/8924301453312+(150484695827 \[Eta]^2)/35413894656+(340714213265 \[Eta]^3)/3794345856))+v^4 (v0^2 (46001356684079/3357073133568+(253471410141755 \[Eta])/5874877983744-(1693852244423 \[Eta]^2)/23313007872-(307833827417 \[Eta]^3)/2497822272)));
+
+
+
+(*Omkar e0^2*)
+v=(\[Pi]fac*m*f)^(1/3);
+v0=(\[Pi]fac*m*f0Favata)^(1/3);
+e2\[Alpha]0=1;
+e2Term=e2\[Alpha]0*e0^2*(((v0^2/v^2)^(19/6) (-(128365/530432)-2045665/(14852096 \[Eta]))+(v0^2/v^2)^(25/6) (154645/748544-2223905/(20959232 \[Eta])))/(v^2)^(3/2)-(7065 (v0^2/v^2)^(19/6))/(187136 (v^2)^(5/2) \[Eta])+(v0^2/v^2)^(25/6) (-((12915517 \[Pi])/6266880)+(185734313 \[Pi])/(175472640 \[Eta])+(602623 SO \[Delta] \[Chi]adl)/235008-(1238021 SO \[Delta] \[Chi]adl)/(940032 \[Eta])+(244599347 SO \[Chi]sdl)/65802240-(1238021 SO \[Chi]sdl)/(940032 \[Eta])-(5275463 SO \[Eta] \[Chi]sdl)/2350080)+(v0^2/v^2)^(14/3) (-((48393605 \[Pi])/38191104)-(771215705 \[Pi])/(1069350912 \[Eta])+(20153305 SO \[Delta] \[Chi]adl)/28643328+(321169405 SO \[Delta] \[Chi]adl)/(802013184 \[Eta])+(169634695 SO \[Chi]sdl)/401006592+(321169405 SO \[Chi]sdl)/(802013184 \[Eta])-(7060075 SO \[Eta] \[Chi]sdl)/14321664)+(v0^2/v^2)^(17/3) ((149064749 \[Pi])/94316544-(7063901 \[Pi])/(22192128 \[Eta])-(38106883 SO \[Delta] \[Chi]adl)/40421376+(200814461 SO \[Delta] \[Chi]adl)/(161685504 \[Eta])-(23048699 SO \[Chi]sdl)/10105344+(200814461 SO \[Chi]sdl)/(161685504 \[Eta])+(1696385 SO \[Eta] \[Chi]sdl)/2526336)+(v0^2/v^2)^(19/6) ((15803101 \[Pi])/9805824+(3873451 \[Pi])/(4290048 \[Eta])-(21901987 SO \[Delta] \[Chi]adl)/14708736-(2318069227 SO \[Delta] \[Chi]adl)/(411844608 \[Eta])+(384699067 SO \[Chi]sdl)/102961152-(2318069227 SO \[Chi]sdl)/(411844608 \[Eta])+(1854425 SO \[Eta] \[Chi]sdl)/919296)+((v0^2/v^2)^(19/6) ((65561 \[Pi])/(174080 \[Eta])-(3059 SO \[Delta] \[Chi]adl)/(6528 \[Eta])+(26779 SO \[Chi]sdl)/65280-(3059 SO \[Chi]sdl)/(6528 \[Eta]))+(v0^2/v^2)^(14/3) (-((295945 \[Pi])/(1497088 \[Eta]))+(123245 SO \[Delta] \[Chi]adl)/(1122816 \[Eta])-(43175 SO \[Chi]sdl)/561408+(123245 SO \[Chi]sdl)/(1122816 \[Eta])))/v^2+1/Sqrt[v^2] ((v0^2/v^2)^(25/6) (4917245/66834432-5795368945/(14970912768 \[Eta])+(25287905 \[Eta])/19095552)+(v0^2/v^2)^(31/6) (3062285/11096064+936702035/(63380717568 \[Eta])-(14251675 \[Eta])/26947584+(209595 SO^2 \[Chi]adl^2)/1497088-(30615 SO^2 \[Chi]adl^2)/(5988352 \[Eta])-(209595 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/(2994176 \[Eta])+(209595 SO^2 \[Kappa]s \[Chi]adl^2)/1497088-(209595 SO^2 \[Kappa]s \[Chi]adl^2)/(2994176 \[Eta])-(30615 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/(2994176 \[Eta])+(209595 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/748544-(209595 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/(1497088 \[Eta])-(209595 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/(1497088 \[Eta])-(44745 SO^2 \[Chi]sdl^2)/374272-(30615 SO^2 \[Chi]sdl^2)/(5988352 \[Eta])-(209595 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/(2994176 \[Eta])+(209595 SO^2 \[Kappa]s \[Chi]sdl^2)/1497088-(209595 SO^2 \[Kappa]s \[Chi]sdl^2)/(2994176 \[Eta]))+(v0^2/v^2)^(19/6) (-(165068815/175988736)-111064865/(603389952 \[Eta])-(10688155 \[Eta])/12570624-(380235 SO^2 \[Chi]adl^2)/698368+(26475 SO^2 \[Chi]adl^2)/(2793472 \[Eta])+(380235 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/(1396736 \[Eta])-(380235 SO^2 \[Kappa]s \[Chi]adl^2)/698368+(380235 SO^2 \[Kappa]s \[Chi]adl^2)/(1396736 \[Eta])+(26475 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/(1396736 \[Eta])-(380235 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/349184+(380235 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/(698368 \[Eta])+(380235 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/(698368 \[Eta])+(1005 SO^2 \[Chi]sdl^2)/1984+(26475 SO^2 \[Chi]sdl^2)/(2793472 \[Eta])+(380235 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/(1396736 \[Eta])-(380235 SO^2 \[Kappa]s \[Chi]sdl^2)/698368+(380235 SO^2 \[Kappa]s \[Chi]sdl^2)/(1396736 \[Eta])))+Sqrt[v^2] ((v0^2/v^2)^(14/3) ((24716497 \[Pi]^2)/(12533760 \[Eta])-(33357937 \[Pi] SO \[Delta] \[Chi]adl)/(9400320 \[Eta])+(480263 SO^2 \[Delta]^2 \[Chi]adl^2)/(352512 \[Eta])+(6850769 \[Pi] SO \[Chi]sdl)/2350080-(33357937 \[Pi] SO \[Chi]sdl)/(9400320 \[Eta])-(7569203 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/3525120+(480263 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/(176256 \[Eta])-(7569203 SO^2 \[Chi]sdl^2)/3525120+(480263 SO^2 \[Chi]sdl^2)/(352512 \[Eta])+(294569 SO^2 \[Eta] \[Chi]sdl^2)/352512)+(v0^2/v^2)^(31/6) (1781120054275/1616858578944+2440991806915/(45272040210432 \[Eta])-(1029307085 \[Eta])/6416105472-(2330466575 \[Eta]^2)/687439872+(85191485 SO^2 \[Chi]adl^2)/178225152-(26593645 SO^2 \[Chi]adl^2)/(1425801216 \[Eta])+(11424485 SO^2 \[Eta] \[Chi]adl^2)/12730368-(11424485 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/25460736-(182064185 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/(712900608 \[Eta])+(22121395 SO^2 \[Kappa]s \[Chi]adl^2)/356450304-(182064185 SO^2 \[Kappa]s \[Chi]adl^2)/(712900608 \[Eta])+(11424485 SO^2 \[Eta] \[Kappa]s \[Chi]adl^2)/12730368-(1668745 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/25460736-(26593645 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/(712900608 \[Eta])+(22121395 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/178225152-(182064185 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/(356450304 \[Eta])+(11424485 SO^2 \[Eta] \[Kappa]a \[Chi]adl \[Chi]sdl)/6365184-(11424485 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/12730368-(182064185 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/(356450304 \[Eta])-(4517615 SO^2 \[Chi]sdl^2)/9633792-(26593645 SO^2 \[Chi]sdl^2)/(1425801216 \[Eta])-(2438935 SO^2 \[Eta] \[Chi]sdl^2)/3182592-(11424485 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/25460736-(182064185 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/(712900608 \[Eta])+(22121395 SO^2 \[Kappa]s \[Chi]sdl^2)/356450304-(182064185 SO^2 \[Kappa]s \[Chi]sdl^2)/(712900608 \[Eta])+(11424485 SO^2 \[Eta] \[Kappa]s \[Chi]sdl^2)/12730368)+(v0^2/v^2)^(25/6) (-(1733730575525/1064379875328)-314646762545/(608217071616 \[Eta])+(11585856665 \[Eta])/4223729664+(2105566535 \[Eta]^2)/452542464-(92809565 SO^2 \[Chi]adl^2)/58662912+(25001225 SO^2 \[Chi]adl^2)/(938606592 \[Eta])+(24968765 SO^2 \[Eta] \[Chi]adl^2)/8380416-(24968765 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/16760832+(359068585 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/(469303296 \[Eta])-(708631295 SO^2 \[Kappa]s \[Chi]adl^2)/234651648+(359068585 SO^2 \[Kappa]s \[Chi]adl^2)/(469303296 \[Eta])+(24968765 SO^2 \[Eta] \[Kappa]s \[Chi]adl^2)/8380416-(1738525 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/16760832+(25001225 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/(469303296 \[Eta])-(708631295 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/117325824+(359068585 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/(234651648 \[Eta])+(24968765 SO^2 \[Eta] \[Kappa]a \[Chi]adl \[Chi]sdl)/4190208-(24968765 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/8380416+(359068585 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/(234651648 \[Eta])+(321897685 SO^2 \[Chi]sdl^2)/234651648+(25001225 SO^2 \[Chi]sdl^2)/(938606592 \[Eta])-(65995 SO^2 \[Eta] \[Chi]sdl^2)/23808-(24968765 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/16760832+(359068585 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/(469303296 \[Eta])-(708631295 SO^2 \[Kappa]s \[Chi]sdl^2)/234651648+(359068585 SO^2 \[Kappa]s \[Chi]sdl^2)/(469303296 \[Eta])+(24968765 SO^2 \[Eta] \[Kappa]s \[Chi]sdl^2)/8380416)+(v0^2/v^2)^(19/6) (-(409265200567/24970788864)+(103115 \[Pi]^2)/262144+59648637301056877/(4806876856320000 \[Eta])-(734341 EulerGamma)/(716800 \[Eta])-(21508213 \[Pi]^2)/(11796480 \[Eta])-(4726688461 \[Eta])/1486356480-(69237581 \[Eta]^2)/31850496+(18306025 \[Pi] SO \[Delta] \[Chi]adl)/(3538944 \[Eta])-(217652171 SO^2 \[Chi]adl^2)/20643840+(57819641 SO^2 \[Chi]adl^2)/(47185920 \[Eta])-(20987011 SO^2 \[Delta]^2 \[Chi]adl^2)/(6635520 \[Eta])-(477851 SO^2 \[Eta] \[Chi]adl^2)/196608+(591359 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/1966080+(58197241 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/(18350080 \[Eta])-(166312697 SO^2 \[Kappa]s \[Chi]adl^2)/27525120+(58197241 SO^2 \[Kappa]s \[Chi]adl^2)/(18350080 \[Eta])-(477851 SO^2 \[Eta] \[Kappa]s \[Chi]adl^2)/196608-(18540289 \[Pi] SO \[Chi]sdl)/4423680+(18306025 \[Pi] SO \[Chi]sdl)/(3538944 \[Eta])+(99602243 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/53084160-(164558387 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/(42467328 \[Eta])-(166312697 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/13762560+(58197241 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/(9175040 \[Eta])-(477851 SO^2 \[Eta] \[Kappa]a \[Chi]adl \[Chi]sdl)/98304+(591359 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/983040+(58197241 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/(9175040 \[Eta])+(1117454435 SO^2 \[Chi]sdl^2)/148635648-(164558387 SO^2 \[Chi]sdl^2)/(84934656 \[Eta])+(3810365 SO^2 \[Eta] \[Chi]sdl^2)/2654208+(591359 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/1966080+(58197241 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/(18350080 \[Eta])-(166312697 SO^2 \[Kappa]s \[Chi]sdl^2)/27525120+(58197241 SO^2 \[Kappa]s \[Chi]sdl^2)/(18350080 \[Eta])-(477851 SO^2 \[Eta] \[Kappa]s \[Chi]sdl^2)/196608-(9663919 Log[2])/(2150400 \[Eta])+(13806531 Log[3])/(5734400 \[Eta])-(734341 Log[v^2])/(1433600 \[Eta]))+(v0^2/v^2)^(37/6) (-(1437364085977/2281705832448)+(3121945 \[Pi]^2)/23953408-4165508390854487/(702765396393984 \[Eta])+(2603845 EulerGamma)/(2619904 \[Eta])-(96423905 \[Pi]^2)/(215580672 \[Eta])+(4499991305 \[Eta])/27163164672+(2425890995 \[Eta]^2)/2910339072+(123278755 \[Pi] SO \[Delta] \[Chi]adl)/(323371008 \[Eta])+(2926507475 SO^2 \[Chi]adl^2)/754532352-(252207155 SO^2 \[Chi]adl^2)/(355074048 \[Eta])+(86641235 SO^2 \[Delta]^2 \[Chi]adl^2)/(242528256 \[Eta])-(19052735 SO^2 \[Eta] \[Chi]adl^2)/17965056+(10108445 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/11976704-(711290855 SO^2 \[Delta] \[Kappa]a \[Chi]adl^2)/(1006043136 \[Eta])+(1135845545 SO^2 \[Kappa]s \[Chi]adl^2)/503021568-(711290855 SO^2 \[Kappa]s \[Chi]adl^2)/(1006043136 \[Eta])-(19052735 SO^2 \[Eta] \[Kappa]s \[Chi]adl^2)/17965056-(29565455 \[Pi] SO \[Chi]sdl)/80842752+(123278755 \[Pi] SO \[Chi]sdl)/(323371008 \[Eta])+(940925335 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/970113024-(19180058075 SO^2 \[Delta] \[Chi]adl \[Chi]sdl)/(27163164672 \[Eta])+(1135845545 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/251510784-(711290855 SO^2 \[Kappa]a \[Chi]adl \[Chi]sdl)/(503021568 \[Eta])-(19052735 SO^2 \[Eta] \[Kappa]a \[Chi]adl \[Chi]sdl)/8982528+(10108445 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/5988352-(711290855 SO^2 \[Delta] \[Kappa]s \[Chi]adl \[Chi]sdl)/(503021568 \[Eta])-(916485145 SO^2 \[Chi]sdl^2)/13581582336-(19180058075 SO^2 \[Chi]sdl^2)/(54326329344 \[Eta])+(8844595 SO^2 \[Eta] \[Chi]sdl^2)/14266368+(10108445 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/11976704-(711290855 SO^2 \[Delta] \[Kappa]a \[Chi]sdl^2)/(1006043136 \[Eta])+(1135845545 SO^2 \[Kappa]s \[Chi]sdl^2)/503021568-(711290855 SO^2 \[Kappa]s \[Chi]sdl^2)/(1006043136 \[Eta])-(19052735 SO^2 \[Eta] \[Kappa]s \[Chi]sdl^2)/17965056+(1898287 Log[2])/(7859712 \[Eta])+(36739413 Log[3])/(20959232 \[Eta])+(2603845 Log[v^2])/(5239808 \[Eta])+(2603845 Log[v0^2/v^2])/(5239808 \[Eta]))))/.{SO->1,\[Chi]sdl->(\[Chi]1+\[Chi]2)/2,
+\[Chi]adl->(\[Chi]1-\[Chi]2)/2,\[Kappa]a->0};
+
+
+(*2PN AMPLITUDE CORRECTIONS*)
+Fcut=10000;
+CknList={(*C[2,0]*)(((-2 I)*Subscript[C,\[Iota]]*CF-(1+Subscript[C,\[Iota]]^2)*PF)*HeavisideTheta[-f+2*Fcut])/Sqrt[2],(*C[2,2]*)((PF*(1385/672+Subscript[C,\[Iota]]^2*(265/672+(11*\[Nu])/24)+Subscript[C,\[Iota]]^4*(-1/3+\[Nu])-(109*\[Nu])/24)+I*CF*(Subscript[C,\[Iota]]*(387/112-(85*\[Nu])/12)+Subscript[C,\[Iota]]^3*(-4/3+4*\[Nu])))*HeavisideTheta[-f+2*Fcut])/Sqrt[2],(*C[2,1]*)0,(*C[2,3]*)((PF*((-27/8-(27*Subscript[C,\[Iota]]^2)/8)*\[Delta]*\[Chi]adl+(-27/8+Subscript[C,\[Iota]]^2*(-27/8-(7*\[Nu])/2)+(9*\[Nu])/2)*\[Chi]sdl)+I*CF*((-27*Subscript[C,\[Iota]]*\[Delta]*\[Chi]adl)/4+(-4*Subscript[C,\[Iota]]^3*\[Nu]+Subscript[C,\[Iota]]*(-27/4+5*\[Nu]))*\[Chi]sdl))*HeavisideTheta[-f+2*Fcut])/Sqrt[2],(*C[2,4]*)1/Sqrt[2] (PF(113419241/40642560+152987/16128 \[Eta]-11099/1152 \[Eta]^2+(165194153/40642560-149/1792 \[Eta]+6709/1152 \[Eta]^2)Subscript[C, \[Iota]]^2+(1693/2016-5723/2016 \[Eta]+13/12 \[Eta]^2)Subscript[C, \[Iota]]^4-1/24 (1-5\[Eta]-5\[Eta]^2)Subscript[C, \[Iota]]^6+(1+Subscript[C, \[Iota]]^2)(\[Chi]sdl^2 (1/32+(23\[Eta])/8+(3*\[Delta]*\[Kappa]a)/2+3/2 (1-2\[Eta])\[Kappa]s)+\[Chi]adl^2 (1/32-3\[Eta]+(3*\[Delta]*\[Kappa]a)/2+3/2 (1-2\[Eta])\[Kappa]s)+\[Chi]sdl*\[Chi]adl(\[Delta]/16+3(1-2\[Eta])\[Kappa]a+3*\[Delta]*\[Kappa]s)))+I*Subscript[C, \[Iota]]CF(114020009/2032180+133411/8064 \[Eta]-7499/576 \[Eta]^2+\[Chi]sdl^2 (1/16+(23\[Eta])/4+3*\[Delta]*\[Kappa]a+3(1-2\[Eta])\[Kappa]s)+\[Chi]adl^2 (1/16-6\[Eta]+3*\[Delta]*\[Kappa]a+3(1-2\[Eta])\[Kappa]s)+\[Chi]adl*\[Chi]sdl(\[Delta]/8+6(1-2\[Eta])\[Kappa]a+6*\[Delta]*\[Kappa]s)+(5777/2520-5555/504 \[Eta]+34/3 \[Eta]^2)Subscript[C, \[Iota]]^2-1/4 (1-5\[Eta]+5\[Eta]^2)Subscript[C, \[Iota]]^4)) HeavisideTheta[-f + 2*Fcut]}/.{\[Nu]->\[Eta],CF->0,PF->1,\[Delta]->Sqrt[1-4\[Eta]],\[Chi]sdl->(\[Chi]1+\[Chi]2)/2,\[Chi]adl->(\[Chi]1-\[Chi]2)/2,Subscript[C, \[Iota]]->1,\[Kappa]a->0}
+
+termtc=2\[Pi]*f*tc;
+termphic=- 2phic;
+(*\!\(
+\*SubsuperscriptBox[\(\[Sum]\), \(i = 1\), \(\[Infinity]\)]
+\*FractionBox[\(1\), 
+SuperscriptBox[\(i\), \(6\)]]\)*)
+(*psi[f_,mchirp_,tc_,phic_,eta_,\[Delta]_,\[Chi]adl_,\[Chi]sdl_,\[Kappa]p_]:=termtc+termphic+\[Alpha]0+\[Alpha]1*v+\[Alpha]2*v^2+\[Alpha]3*v^3+\[Alpha]4*v^4+\[Alpha]5*v^5+\[Alpha]6*v^6+\[Alpha]7*v^7+\[Alpha]8*v^8-\[Pi]/4;*)
+
+psi[f_,mchirp_,tc_,phic_,\[Eta]_,\[Delta]_,\[Chi]adl_,\[Chi]sdl_,\[Kappa]p_,e0_]:=termtc+termphic+\[Alpha]0+(\[Alpha]1)*v+(\[Alpha]2)*v^2+(\[Alpha]3)*v^3+(\[Alpha]4)*v^4+(\[Alpha]5)*v^5+(\[Alpha]6)*v^6+(\[Alpha]7)*v^7+(\[Alpha]8)*v^8+e2Term+e4Term+e6Term+e8Term;
+(*h[f_,mchirp_,tc_,phic_,\[Eta]_,\[Delta]_,\[Chi]1_,\[Chi]2_,\[Kappa]s_,Dl_]:=(2m^2)/DlSqrt[(5\[Pi]*\[Eta])/48](v)^(-7/2)*Exp[k*psi[f,mchirp,tc,phic,\[Eta],\[Delta],\[Chi]1,\[Chi]2,\[Kappa]s]\[ImaginaryI]]/.conv/.k->2/.conv1*)
+h[f_,mchirp_,tc_,phic_,\[Eta]_,\[Delta]_,\[Chi]1_,\[Chi]2_,\[Kappa]s_,Dl_,e0_]:=(m^2)/Dl Sqrt[(5\[Pi]*\[Eta])/48]\!\(
+\*SubsuperscriptBox[\(\[Sum]\), \(n = 0\), \(4\)]\(CknList[\([n + 1]\)] 
+\*SuperscriptBox[\((v)\), \(n - 7/2\)]*Exp[k*psi[f, mchirp, tc, phic, \[Eta], \[Delta], \[Chi]1, \[Chi]2, \[Kappa]s, e0] I]\)\)/.conv/.k->2/.conv1
+
+
+psi[f,mchirp,tc,phic,\[Eta],\[Delta],\[Chi]adl,\[Chi]sdl,\[Kappa]s,e0];
+(*value=psi[f,mchirp,tc,phic,\[Eta],\[Delta],\[Chi]1,\[Chi]2,\[Kappa]p]/.conv/.{f->check,mchirp->check,tc->check,phic->check,\[Eta]->check,\[Delta]->check,\[Chi]1->check,\[Chi]2->check,\[Kappa]p->check,k->1}/.check->2;
+Print["PSi value   ",N[value]]*)
+h1=h[f,mchirp,tc,phic,\[Eta],\[Delta],\[Chi]1,\[Chi]2,\[Kappa]s,Dl,e0];
+conjh1=Conjugate[h1]/. Conjugate[x_]:>(x/. a_Complex:>Conjugate[a]);
+(*Checking if the conjugate trick works or not*)
+(*Print["Plot of Psi"]
+Table[N[psi[f,mchirp,tc,phic,\[Eta],\[Delta],\[Chi]1,\[Chi]2,\[Kappa]p]/.conv/.{f->p,mchirp->check,tc->check,phic->check,\[Eta]->check,\[Delta]->check,\[Chi]1->check,\[Chi]2->check,\[Kappa]p->check,k->1}],{p,1,10}]
+
+Plot[psi[f,mchirp,tc,phic,\[Eta],\[Delta],\[Chi]1,\[Chi]2,\[Kappa]p]/.conv/.{f->p,mchirp->check,tc->check,phic->check,\[Eta]->check,\[Delta]->check,\[Chi]1->check,\[Chi]2->check,\[Kappa]p->check,k->1},{p,0,10}]
+
+check=2;
+
+valueh1=Re[h1/.conv/.{f->check,mchirp->check,tc->check,phic->check,\[Eta]->check,\[Delta]->check,\[Chi]1->check,\[Chi]2->check,\[Kappa]p->check,k->1,Dl->1}];
+Print["h1 value   ",N[valueh1]]*)
